@@ -8,7 +8,7 @@ import numpy as np
 cap = cv2.VideoCapture(0)
 
 
-def bot(shared_memory,n_frames,bot_no):
+def bot(shared_memory,bot_no):
 	mp_array, np_array = shared_memory
 	while True:
 		_ = np_array.astype("uint8").copy()  # example of some processing done on the array
@@ -31,15 +31,14 @@ def main():
 	# create a numpy view of the array
 	np_array = np.frombuffer(mp_array.get_obj(), dtype="I").reshape((480, 640, 3))
 	shared_memory = (mp_array, np_array)
-	proc = mp.Process(target=bot,
-	                  args=( shared_memory, n_frames,0))
 	proc1 = mp.Process(target=bot,
-	                  args=( shared_memory, n_frames,1))
+	                  args=( shared_memory,0))
 	proc2 = mp.Process(target=bot,
-	                  args=( shared_memory, n_frames,2))
-	proc.start()
+	                  args=( shared_memory,1))
+
 	proc1.start()
 	proc2.start()
+
 	while True:
 
 		got, frame = cap.read()
