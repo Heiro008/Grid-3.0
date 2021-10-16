@@ -1,4 +1,4 @@
-from round_1_data import *
+# import the data for required round
 from round_2_data import *
 
 class path:
@@ -69,3 +69,5 @@ class bot_state:
 	def __init__(self):
 		self.pos = None
 		self.is_reversed = None
+		self.curr_dir = None
+		self.center = None
