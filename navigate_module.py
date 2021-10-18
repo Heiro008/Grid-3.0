@@ -1,6 +1,12 @@
 # import the data for required round
 from round_2_data import *
 
+turn_msg ={
+			'S':{'E':'e','W':'i'},
+			'N':{'E':'i','W':'e'},
+			'E':{'N':'e','S':'i'},
+			'W':{'N':'i','S':'e'}
+			}
 class path:
 	def __init__(self,start_dir='W',path_no=0):
 		self.upper_limit = path_def[path_no][3][1]
@@ -29,7 +35,7 @@ class path:
 			self.lower_limit = self.t_lim -5
 			self.center = self.t_lim # +50'''
 			
-		self.assign_dir(self.t_dir)
+		
 
 		self.sub_path += 1
 		self.curr_dir = self.t_dir
@@ -40,34 +46,56 @@ class path:
 			self.t_lim_offset = path_def[self.path_no][2][self.sub_path]
 			self.turn_path = path_def[self.path_no][4][self.sub_path]
 
+		self.assign_dir(self.curr_dir)
+
 		print(self.upper_limit,self.lower_limit)
 
 	def assign_dir(self,dir):
-		if dir =='S' or dir =='N':
+		if dir =='N':
 			self.mov_dir = 0  
 
 			self.l_dir = 'r' 
 			self.r_dir = 'l'
+			if self.is_reversed:
+				self.l_dir = 'l' 
+				self.r_dir = 'r'
+			'''
 			if (dir == 'S' and not(self.is_reversed)) or self.temp:
 				self.l_dir = 'l' 
 				self.r_dir = 'r'
 				self.temp = True
+			'''
+					
 			#self.l_dir = 'move right' 
 			#self.r_dir = 'move left' 
+		elif dir == 'S':
+			self.mov_dir = 0
+			self.l_dir = 'l' 
+			self.r_dir = 'r'
+			if self.is_reversed:
+				self.l_dir = 'r' 
+				self.r_dir = 'l'
 		else:
-			self.mov_dir = 1 
+			self.mov_dir = 1 	
 			self.l_dir = 'l'
 			self.r_dir = 'r'
+
 			#self.l_dir = 'move down' l
 			#self.r_dir = 'move up' r
+		'''
 		if self.t_dir == 'S' or self.t_dir =='W':
 			self.t_msg = 'e'    # default = e
+			if self.is_reversed:
+				self.t_msg = 'i'
 		else:
 			self.t_msg = 'i'
+		'''
+		if not self.turn_path :
+			self.t_msg = turn_msg[dir][self.t_dir]
 
 class bot_state:
 	def __init__(self):
 		self.pos = None
 		self.is_reversed = None
 		self.curr_dir = None
-		self.center = None
+		self.mov_dir = None
