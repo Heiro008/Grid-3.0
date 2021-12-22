@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(2)
 dir = list()
 dir_inv = list()
 limits = list()
@@ -12,7 +12,7 @@ center = None
 is_first = True
 turn_path = list()
 
-offset_value = 100
+offset_value = 100    
 count = 0
 
 key = None
@@ -63,7 +63,7 @@ def path_def(event,x,y,falgs,param):
 				limits_inv.append(x_i)
 
 
-img = np.zeros((480,640,3),np.uint8)
+img = np.zeros((960, 1280, 3),np.uint8)    # (480,640,3)  (960, 1280, 3)
 
 def main():
 	global key,frame,count,limits,offset,dir,img
@@ -71,12 +71,24 @@ def main():
 	while True:
 		got , frame = cap.read()
 		cv2.setMouseCallback('path parser',path_def,frame)
-		frame = cv2.flip(frame,1)
+		
+		#frame = cv2.flip(frame,1)
+		
 		out = cv2.bitwise_or(img,frame)
 		cv2.imshow('path parser',out)
 		key = cv2.waitKey(1)
-		if key == 27:
+		if key == 113:
 			break
+		if key == 27:
+			img = np.zeros((960, 1280, 3),np.uint8)
+			count = 0
+			dir.clear()
+			dir_inv.clear()
+			limits.clear()
+			limits_inv.clear()
+			offset.clear()
+			offset_inv.clear()
+			turn_path.clear()
 		if key == 32:
 			for j in range(1,3,1):
 				for i in range(count-1):
@@ -90,14 +102,31 @@ def main():
 			offset+=offset_inv
 			dir+=dir_inv
 			dir+=dir_inv[-1]
-			#print('limits: ',limits)
-			#print('offset: ',offset)
-			#print('dir: ',dir)
-			#print('turn_path: ',turn_path)
-			#print('center: [',limits_inv[-2],']')
-			center = [limits_inv[-2]]
-			print(dir,',',limits,',',offset,',',center,',',turn_path)
-			#img = np.zeros((480,640,3),np.uint8)
+			if len(limits_inv) > 1:
+				center = [limits_inv[-2]]
+			else:
+				center = [y_i]
+			print('[',dir,',',limits,',',offset,',',center,',',turn_path,'],')
+			
+			#img = np.zeros((960, 1280, 3),np.uint8)
+			
+			count = 0
+			dir.clear()
+			dir_inv.clear()
+			limits.clear()
+			limits_inv.clear()
+			offset.clear()
+			offset_inv.clear()
+			turn_path.clear()
+		if key == 115:
+			limits_inv.reverse()
+			if len(limits_inv) > 1:
+				center = [limits_inv[-2]]
+			else:
+				center = [y_i]
+			dir+=dir[-1]
+			print('[',dir,',',limits,',',offset,',',center,',','[0,2]','],')
+
 			count = 0
 			dir.clear()
 			dir_inv.clear()
