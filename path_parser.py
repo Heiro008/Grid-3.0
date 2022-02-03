@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from round_2_data import *
 
 cap = cv2.VideoCapture(2)
 dir = list()
@@ -14,6 +15,7 @@ turn_path = list()
 
 offset_value = 100    
 count = 0
+overshoot = 30
 
 key = None
 x_i =0
@@ -40,11 +42,15 @@ def path_def(event,x,y,falgs,param):
 					dir_inv.append('S')
 					offset.append(y_f - offset_value)
 					offset_inv.append(y_i + offset_value)
+					y_f = y_f + overshoot
+					y_i = y_i - overshoot
 				else:
 					dir.append('S')
 					dir_inv.append('N')
 					offset.append(y_f + offset_value)
 					offset_inv.append(y_i - offset_value)
+					y_f = y_f - overshoot
+					y_i = y_i + overshoot
 				limits.append(y_f)
 				limits_inv.append(y_i)
 			elif abs(y_i-y_f) < 20:
@@ -53,17 +59,23 @@ def path_def(event,x,y,falgs,param):
 					dir_inv.append('W')
 					offset.append(x_f + offset_value)
 					offset_inv.append(x_i - offset_value)
+					x_f = x_f - overshoot
+					x_i = x_i + overshoot
 				else:
 					dir.append('W')
 					dir_inv.append('E')
 					offset.append(x_f - offset_value)
 					offset_inv.append(x_i + offset_value)
+					x_f = x_f + overshoot
+					x_i = x_i - overshoot
 
 				limits.append(x_f)
 				limits_inv.append(x_i)
 
 
 img = np.zeros((960, 1280, 3),np.uint8)    # (480,640,3)  (960, 1280, 3)
+
+bot_no = 0
 
 def main():
 	global key,frame,count,limits,offset,dir,img
@@ -73,7 +85,20 @@ def main():
 		cv2.setMouseCallback('path parser',path_def,frame)
 		
 		#frame = cv2.flip(frame,1)
-		
+		lower = color_def[bot_no][0]
+		upper = color_def[bot_no][1]
+		hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+		mask = cv2.inRange(hsv,lower,upper)
+
+		cnts,_ = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+		for i,c in enumerate(cnts):
+			if len(c)> 100:
+				rect = cv2.minAreaRect(c)
+				center = rect[0]				#center (x,y)
+				
+				cv2.circle(frame, (int(center[0]),int(center[1])),7,(0,0,255),-1)
+
+
 		out = cv2.bitwise_or(img,frame)
 		cv2.imshow('path parser',out)
 		key = cv2.waitKey(1)
@@ -105,7 +130,7 @@ def main():
 			if len(limits_inv) > 1:
 				center = [limits_inv[-2]]
 			else:
-				center = [y_i]
+				center = [y_i+30]
 			print('[',dir,',',limits,',',offset,',',center,',',turn_path,'],')
 			
 			#img = np.zeros((960, 1280, 3),np.uint8)

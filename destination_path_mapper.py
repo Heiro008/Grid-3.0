@@ -26,11 +26,14 @@ def parse_excel_data():
 	zone1 = data.query('InductStation==1')
 	zone2 = data.query('InductStation==2')
 	path_nos = list()
+	pack_id = list()
 	path_nos.append(list(zone1['path_no']))
 	path_nos.append(list(zone2['path_no']))
+	pack_id.append(list(zone1['Shipment']))
+	pack_id.append(list(zone2['Shipment']))
 	del data,zone1,zone2
-	print('zone 1:')
-	print(path_nos[0])
-	print('zone 2:')
-	print(path_nos[1])
-	return path_nos
+	#print('zone 1:')
+	#print(path_nos[0])
+	#print('zone 2:')
+	#print(path_nos[1])
+	return path_nos,pack_id
